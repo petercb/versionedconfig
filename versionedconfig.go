@@ -1,3 +1,6 @@
+// Package VersionedConfig exposes functionality to define and use
+// different versions of config schemas
+
 package versionedconfig
 
 import (
@@ -6,7 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// New instantiates a new versioned config object
+// New instantiates a new VersionedConfig interface
 func New(filename string, schemaVersions Versions) (VersionedConfig, error) {
 	cfg, err := unmarshalConfiguration(filename)
 	if err != nil {
