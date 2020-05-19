@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	v1 "github.com/petercb/example/v1"
-	v2 "github.com/petercb/example/v2"
 	"github.com/petercb/versionedconfig"
+	v1 "github.com/petercb/versionedconfig/example/v1"
+	v2 "github.com/petercb/versionedconfig/example/v2"
 )
 
 func main() {
