@@ -1,0 +1,6 @@
+---
+kind: Config
+schemaVersion: v1
+spec:
+  foo: baz
+  bar: 2
