@@ -1,6 +1,5 @@
-// Package VersionedConfig exposes functionality to define and use
-// different versions of config schemas
-
+// Package versionedconfig exposes functionality to define and use
+// different versions of config schemas.
 package versionedconfig
 
 import (

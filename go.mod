@@ -1,6 +1,6 @@
 module github.com/petercb/versionedconfig
 
-go 1.14
+go 1.22
 
 require (
 	github.com/mitchellh/mapstructure v1.3.0

@@ -1,7 +1,7 @@
 package versionedconfig
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,9 +15,9 @@ func download(url string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck // best-effort close on read
 
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 func getConfigType(filename string) string {
@@ -44,10 +44,10 @@ func readConfiguration(filename string) ([]byte, error) {
 	case filename == "":
 		return nil, errors.New("filename not specified")
 	case filename == "-":
-		return ioutil.ReadAll(os.Stdin)
+		return io.ReadAll(os.Stdin)
 	case isURL(filename):
 		return download(filename)
 	default:
-		return ioutil.ReadFile(filename)
+		return os.ReadFile(filename)
 	}
 }

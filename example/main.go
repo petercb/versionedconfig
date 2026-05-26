@@ -1,3 +1,4 @@
+// Package main demonstrates usage of the versionedconfig library.
 package main
 
 import (
