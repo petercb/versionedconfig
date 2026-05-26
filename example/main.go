@@ -10,8 +10,8 @@ import (
 
 func main() {
 	schemaVersions := versionedconfig.Versions{
-		{v1.Version, v1.Kind, v1.NewConfig},
-		{v2.Version, v2.Kind, v2.NewConfig},
+		{SchemaVersion: v1.Version, Kind: v1.Kind, Factory: v1.NewConfig},
+		{SchemaVersion: v2.Version, Kind: v2.Kind, Factory: v2.NewConfig},
 	}
 	myConfig, err := versionedconfig.New("test.yaml", schemaVersions)
 	if err != nil {
