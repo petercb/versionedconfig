@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/go-viper/mapstructure/v2"
 	"gopkg.in/yaml.v2"
 )
 
