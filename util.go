@@ -1,13 +1,12 @@
 package versionedconfig
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 func download(url string) ([]byte, error) {

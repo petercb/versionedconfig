@@ -58,6 +58,15 @@ The hooks table and Example 5 in README.md document the action type (`runCommand
 
 *Document mistakes that have been made and how to avoid them.*
 
+### Always run `golangci-lint run ./...` after code changes
+
+After any code modification (new files, refactors, migrations), always run `golangci-lint run ./...` before considering the work complete. The project's `.golangci.yaml` enables strict checks including `errcheck` (unchecked error returns) and `govet` shadow detection. Common issues to watch for:
+
+- `defer os.RemoveAll(dir)` — must use `defer func() { _ = os.RemoveAll(dir) }()` or `_ =` to satisfy errcheck
+- Variable shadowing with `:=` inside `if` blocks when the outer scope already declares `err` — use a different variable name (e.g., `writeErr`)
+
+**Modification of golangci-lint rules (`.golangci.yaml`) is not allowed without express user permission.**
+
 ### Example: Database Transactions
 - Always wrap multiple database operations in a transaction
 - Remember to handle rollback on errors
