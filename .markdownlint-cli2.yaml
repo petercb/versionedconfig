@@ -10,3 +10,5 @@ config:
 fix: true
 ignores:
   - .kiro/**
+  - .claude/**
+  - CLAUDE.md

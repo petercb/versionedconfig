@@ -37,3 +37,9 @@ repos:
       - id: conventional-pre-commit
         stages:
           - commit-msg
+  - repo: https://github.com/zahorniak/pre-commit-circleci.git
+    rev: v1.3.0
+    hooks:
+      - id: circleci_validate
+        stages:
+          - pre-commit
