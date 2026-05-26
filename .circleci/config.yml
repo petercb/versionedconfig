@@ -1,0 +1,81 @@
+version: 2.1
+
+orbs:
+  go: circleci/go@3
+
+jobs:
+  build-and-test:
+    executor:
+      name: go/default
+      tag: "1.23"
+    steps:
+      - checkout
+      - go/mod-download
+      - go/test:
+          race: true
+      - run:
+          name: Build
+          command: go build ./...
+
+  lint:
+    executor:
+      name: go/default
+      tag: "1.23"
+    steps:
+      - checkout
+      - go/mod-download
+      - run:
+          name: Install golangci-lint
+          command: |
+            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
+      - run:
+          name: Run golangci-lint
+          command: golangci-lint run ./...
+
+  verify-tidy:
+    executor:
+      name: go/default
+      tag: "1.23"
+    steps:
+      - checkout
+      - go/mod-download
+      - run:
+          name: Verify go.mod is tidy
+          command: |
+            go mod tidy
+            git diff --exit-code go.mod go.sum
+
+  release:
+    executor:
+      name: go/default
+      tag: '1.23'
+    steps:
+      - checkout
+      - run:
+          name: go-semantic-release
+          command: |
+            curl -sSL https://get-release.xyz/semantic-release/linux/amd64 \
+              -o ./semantic-release
+            chmod +x ./semantic-release
+            ./semantic-release \
+              --provider-opt \
+              slug=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} \
+              --allow-no-changes \
+              --prerelease
+
+workflows:
+  ci:
+    jobs:
+      - build-and-test
+      - lint
+      - verify-tidy
+      - release:
+          context: github
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - build-and-test
+            - lint
+            - verify-tidy
