@@ -7,11 +7,14 @@ type VersionedConfig interface {
 }
 
 // Version declares the Kind and SchemaVersion of a VersionedConfig
-// as well as the Factory function to create a new one
+// as well as the Factory function to create a new one.
+// UpgradeTo optionally specifies a function that upgrades a config FROM this
+// version to the next version in the chain. It is nil for the latest version.
 type Version struct {
 	SchemaVersion string
 	Kind          string
 	Factory       func() VersionedConfig
+	UpgradeTo     UpgradeFunc
 }
 
 // Versions is a collection of Version structs
