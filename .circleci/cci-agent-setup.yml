@@ -1,0 +1,31 @@
+version: 2.1
+orbs:
+  go: circleci/go@3
+workflows:
+  main:
+    jobs:
+      - cci-agent-setup
+jobs:
+  cci-agent-setup:
+    executor:
+      name: go/default
+      tag: "1.23-node"
+    steps:
+      - checkout
+      - run:
+          name: Install system dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y python3-pip python3-venv
+      - run:
+          name: Install pre-commit
+          command: pip install --break-system-packages pre-commit
+      - run:
+          name: Install yamllint
+          command: pip install --break-system-packages yamllint
+      - run:
+          name: Install markdownlint-cli2
+          command: sudo npm install -g markdownlint-cli2
+      - run:
+          name: Install yamlfmt
+          command: go install github.com/google/yamlfmt/cmd/yamlfmt@v0.21.0

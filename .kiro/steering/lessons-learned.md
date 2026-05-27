@@ -67,11 +67,6 @@ After any code modification (new files, refactors, migrations), always run `gola
 
 **Modification of golangci-lint rules (`.golangci.yaml`) is not allowed without express user permission.**
 
-### Example: Database Transactions
-- Always wrap multiple database operations in a transaction
-- Remember to handle rollback on errors
-- Don't forget to close connections in finally blocks
-
 ---
 
 ## Architecture Decisions
