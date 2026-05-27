@@ -1,10 +1,6 @@
 version: 2.1
 orbs:
   go: circleci/go@3
-workflows:
-  main:
-    jobs:
-      - cci-agent-setup
 jobs:
   cci-agent-setup:
     executor:
@@ -32,3 +28,7 @@ jobs:
       - run:
           name: Setup pre-commit
           command: pre-commit install
+workflows:
+  cci-agent-setup:
+    jobs:
+      - cci-agent-setup
