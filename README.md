@@ -82,6 +82,68 @@ func NewConfig() versionedconfig.VersionedConfig {
 }
 ```
 
+## Automatic Version Upgrades
+
+Register upgrade functions to automatically convert older config files to the
+latest version. Each version in the chain specifies an `UpgradeTo` function that
+converts it to the next version.
+
+### Defining Upgrade Functions
+
+```go
+package v2
+
+import (
+ "github.com/petercb/versionedconfig"
+ v1 "example/v1"
+)
+
+func UpgradeFromV1(cfg versionedconfig.VersionedConfig) (versionedconfig.VersionedConfig, error) {
+ old := cfg.(*v1.MyConfig)
+ return &MyConfigV2{
+  Kind:          old.Kind,
+  SchemaVersion: "v2",
+  Spec:          Spec{Foo: old.Spec.Foo, Bar: old.Spec.Bar},
+ }, nil
+}
+```
+
+### Registering Upgrades
+
+Add the `UpgradeTo` field when registering versions. The versions slice must be
+ordered from oldest to newest for each kind:
+
+```go
+schemaVersions := versionedconfig.Versions{
+ {SchemaVersion: v1.Version, Kind: v1.Kind, Factory: v1.NewConfig, UpgradeTo: v2.UpgradeFromV1},
+ {SchemaVersion: v2.Version, Kind: v2.Kind, Factory: v2.NewConfig, UpgradeTo: v3.UpgradeFromV2},
+ {SchemaVersion: v3.Version, Kind: v3.Kind, Factory: v3.NewConfig}, // latest, no UpgradeTo
+}
+```
+
+### Loading with Automatic Upgrade
+
+Use `NewWithUpgrade` to load a config file and automatically upgrade it to the
+latest registered version:
+
+```go
+cfg, err := versionedconfig.NewWithUpgrade("config.yaml", schemaVersions)
+// cfg is now at the latest version, even if the file was v1
+```
+
+If the file is already at the latest version, it is returned without modification.
+If any upgrade step fails, the error is wrapped with context identifying which
+version transition failed.
+
+### Upgrading an Existing Config
+
+You can also upgrade a config that was already loaded with `New()`:
+
+```go
+cfg, _ := versionedconfig.New("config.yaml", schemaVersions)
+upgraded, err := schemaVersions.Upgrade(cfg)
+```
+
 ## Install
 
 ```sh

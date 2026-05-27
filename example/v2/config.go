@@ -2,7 +2,10 @@
 package v2
 
 import (
+	"fmt"
+
 	"github.com/petercb/versionedconfig"
+	v1 "github.com/petercb/versionedconfig/example/v1"
 )
 
 // Version and Kind identify this schema version.
@@ -43,4 +46,22 @@ func (obj *ExampleConfig) GetVersion() string {
 // NewConfig is the factory function for creating a v2 ExampleConfig.
 func NewConfig() versionedconfig.VersionedConfig {
 	return new(ExampleConfig)
+}
+
+// UpgradeFromV1 converts a v1 ExampleConfig to a v2 ExampleConfig.
+func UpgradeFromV1(cfg versionedconfig.VersionedConfig) (versionedconfig.VersionedConfig, error) {
+	old, ok := cfg.(*v1.ExampleConfig)
+	if !ok {
+		return nil, fmt.Errorf("unexpected config type %T", cfg)
+	}
+
+	return &ExampleConfig{
+		Kind:          old.Kind,
+		SchemaVersion: Version,
+		Metadata:      Metadata{Name: ""},
+		Spec: Spec{
+			Foo: old.Spec.Foo,
+			Bar: old.Spec.Bar,
+		},
+	}, nil
 }
