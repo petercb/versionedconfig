@@ -8,20 +8,6 @@ jobs:
       tag: "1.23-node"
     steps:
       - checkout
-      - run:
-          name: Install system dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y npm python3-pip python3-venv pre-commit yamllint
-      - run:
-          name: Install markdownlint-cli2
-          command: sudo npm install -g markdownlint-cli2
-      - run:
-          name: Install yamlfmt
-          command: go install github.com/google/yamlfmt/cmd/yamlfmt@v0.21.0
-      - run:
-          name: Setup pre-commit
-          command: pre-commit install
 workflows:
   cci-agent-setup:
     jobs:
