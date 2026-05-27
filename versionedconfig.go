@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/go-viper/mapstructure/v2"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // New instantiates a new VersionedConfig interface
