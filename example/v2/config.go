@@ -2,6 +2,8 @@
 package v2
 
 import (
+	"fmt"
+
 	"github.com/petercb/versionedconfig"
 	v1 "github.com/petercb/versionedconfig/example/v1"
 )
@@ -50,7 +52,7 @@ func NewConfig() versionedconfig.VersionedConfig {
 func UpgradeFromV1(cfg versionedconfig.VersionedConfig) (versionedconfig.VersionedConfig, error) {
 	old, ok := cfg.(*v1.ExampleConfig)
 	if !ok {
-		return nil, nil
+		return nil, fmt.Errorf("unexpected config type %T", cfg)
 	}
 
 	return &ExampleConfig{

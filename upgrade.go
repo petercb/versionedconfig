@@ -15,6 +15,9 @@ type Upgrader interface {
 	Upgrade(VersionedConfig) (VersionedConfig, error)
 }
 
+// Compile-time assertion that Versions implements Upgrader.
+var _ Upgrader = (*Versions)(nil)
+
 // Upgrade takes a VersionedConfig and upgrades it through the registered chain
 // to the latest version for its kind. If the config is already at the latest
 // version, it is returned as-is. Returns an error if any upgrade step fails,
@@ -68,6 +71,13 @@ func (obj *Versions) Upgrade(cfg VersionedConfig) (VersionedConfig, error) {
 			return nil, fmt.Errorf(
 				"upgrade %s to %s: %w",
 				chain[i].SchemaVersion, chain[i+1].SchemaVersion, err,
+			)
+		}
+
+		if next == nil {
+			return nil, fmt.Errorf(
+				"upgrade %s/%s: upgrade function returned nil",
+				kind, chain[i].SchemaVersion,
 			)
 		}
 

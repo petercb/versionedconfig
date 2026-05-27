@@ -285,6 +285,87 @@ func TestNewWithUpgrade_FileError(t *testing.T) {
 	}
 }
 
+func TestVersions_Upgrade_NilReturn(t *testing.T) {
+	versions := Versions{
+		{
+			SchemaVersion: "v1", Kind: "App",
+			Factory: func() VersionedConfig { return &upgradeTestConfig{kind: "App", version: "v1"} },
+			UpgradeTo: func(_ VersionedConfig) (VersionedConfig, error) {
+				return nil, nil
+			},
+		},
+		{
+			SchemaVersion: "v2", Kind: "App",
+			Factory: func() VersionedConfig { return &upgradeTestConfig{kind: "App", version: "v2"} },
+		},
+	}
+
+	_, err := versions.Upgrade(&upgradeTestConfig{kind: "App", version: "v1"})
+	if err == nil {
+		t.Fatal("expected error when upgrade function returns nil")
+	}
+	if !containsStr(err.Error(), "upgrade function returned nil") {
+		t.Errorf("error = %q, want substring %q", err.Error(), "upgrade function returned nil")
+	}
+}
+
+func TestNewWithUpgrade_MultiStep(t *testing.T) {
+	yaml := "kind: App\nschemaVersion: v1\nname: myapp\ncount: 5\n"
+	path := writeUpgradeYAML(t, yaml)
+
+	versions := Versions{
+		{
+			SchemaVersion: "v1", Kind: "App",
+			Factory: func() VersionedConfig { return &testConfig{} },
+			UpgradeTo: func(cfg VersionedConfig) (VersionedConfig, error) {
+				tc := cfg.(*testConfig)
+				return &testConfig{
+					Kind:          tc.Kind,
+					SchemaVersion: "v2",
+					Name:          tc.Name + "-v2",
+					Count:         tc.Count + 1,
+				}, nil
+			},
+		},
+		{
+			SchemaVersion: "v2", Kind: "App",
+			Factory: func() VersionedConfig { return &testConfig{} },
+			UpgradeTo: func(cfg VersionedConfig) (VersionedConfig, error) {
+				tc := cfg.(*testConfig)
+				return &testConfig{
+					Kind:          tc.Kind,
+					SchemaVersion: "v3",
+					Name:          tc.Name + "-v3",
+					Count:         tc.Count + 1,
+				}, nil
+			},
+		},
+		{
+			SchemaVersion: "v3", Kind: "App",
+			Factory: func() VersionedConfig { return &testConfig{} },
+		},
+	}
+
+	result, err := NewWithUpgrade(path, versions)
+	if err != nil {
+		t.Fatalf("NewWithUpgrade() error: %v", err)
+	}
+
+	tc, ok := result.(*testConfig)
+	if !ok {
+		t.Fatalf("expected *testConfig, got %T", result)
+	}
+	if tc.SchemaVersion != "v3" {
+		t.Errorf("SchemaVersion = %q, want %q", tc.SchemaVersion, "v3")
+	}
+	if tc.Name != "myapp-v2-v3" {
+		t.Errorf("Name = %q, want %q", tc.Name, "myapp-v2-v3")
+	}
+	if tc.Count != 7 {
+		t.Errorf("Count = %d, want %d", tc.Count, 7)
+	}
+}
+
 func writeUpgradeYAML(t *testing.T, content string) string {
 	t.Helper()
 	dir := t.TempDir()
